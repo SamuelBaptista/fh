@@ -1,5 +1,5 @@
 import pytest
-from app.llm import LLMClient, LLMResponse
+from app.infra.llm import LLMClient, LLMResponse
 
 
 @pytest.mark.asyncio

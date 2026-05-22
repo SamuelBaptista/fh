@@ -6,7 +6,7 @@ from typing import Any
 
 import boto3
 
-from app.config import settings
+from app.config.settings import settings
 
 
 class SQSClient:

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.agent import Agent
-from app.customer import get_customer_policy
-from app.dispatcher import Dispatcher
+from app.agent.agent import Agent
+from app.config.customer import get_customer_policy
+from app.agent.dispatcher import Dispatcher
 from app.observability import Logger, JsonlWriter
-from app.session import SessionState
-from app.tools import ToolExecutor
+from app.core.session import SessionState
+from app.core.tools import ToolExecutor
 
 
 class Worker:

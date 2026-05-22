@@ -17,7 +17,7 @@ format:
 	uv run ruff format app/ tests/
 
 run:
-	uv run uvicorn app.api:app --host 0.0.0.0 --port 8000 --reload
+	uv run uvicorn app.api.routes:app --host 0.0.0.0 --port 8000 --reload
 
 up:
 	docker compose up -d

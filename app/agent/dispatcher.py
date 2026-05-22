@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.customer import CustomerPolicy
-from app.session import SessionState
+from app.config.customer import CustomerPolicy
+from app.core.session import SessionState
 
 
 @dataclass

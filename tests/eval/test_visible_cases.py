@@ -3,7 +3,7 @@ import copy
 
 import pytest
 
-from app.worker import Worker
+from app.worker.handler import Worker
 
 
 def apply_patch(load_data: dict, patch: dict) -> dict:

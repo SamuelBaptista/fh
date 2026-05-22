@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from app.models import ToolCallRecord
+from app.core.models import ToolCallRecord
 
 
 class ToolExecutor:

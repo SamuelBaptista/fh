@@ -7,7 +7,7 @@ from typing import Any
 
 import httpx
 
-from app.config import settings
+from app.config.settings import settings
 from app.observability import Logger
 
 

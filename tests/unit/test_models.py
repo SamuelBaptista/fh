@@ -1,5 +1,5 @@
 import pytest
-from app.models import (
+from app.core.models import (
     LoadSeedRequest,
     InboundCommunicationEvent,
     TrackingEvent,

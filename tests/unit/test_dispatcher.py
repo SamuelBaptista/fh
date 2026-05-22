@@ -1,6 +1,6 @@
-from app.dispatcher import Dispatcher
-from app.session import SessionState
-from app.customer import get_customer_policy
+from app.agent.dispatcher import Dispatcher
+from app.core.session import SessionState
+from app.config.customer import get_customer_policy
 
 
 def make_comm_event(sender_type="driver", channel="sms", content="hello", attachments=None):

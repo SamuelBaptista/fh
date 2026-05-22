@@ -1,6 +1,6 @@
 import pytest
 import copy
-from app.worker import Worker
+from app.worker.handler import Worker
 
 
 @pytest.fixture

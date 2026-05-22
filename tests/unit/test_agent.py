@@ -1,7 +1,7 @@
 import pytest
-from app.agent import Agent, AgentDecision
-from app.customer import get_customer_policy
-from app.session import SessionState
+from app.agent.agent import Agent, AgentDecision
+from app.config.customer import get_customer_policy
+from app.core.session import SessionState
 
 
 @pytest.fixture

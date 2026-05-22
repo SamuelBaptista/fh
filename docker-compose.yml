@@ -33,7 +33,7 @@ services:
 
   worker:
     build: .
-    command: ["uv", "run", "python", "-m", "app.worker_sqs"]
+    command: ["uv", "run", "python", "-m", "app.worker.sqs_poller"]
     env_file: .env
     environment:
       - AWS_ENDPOINT_URL=http://localstack:4566

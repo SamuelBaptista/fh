@@ -6,10 +6,10 @@ import time
 
 import boto3
 
-from app.config import settings
-from app.db import DynamoDBClient
+from app.config.settings import settings
+from app.infra.db import DynamoDBClient
 from app.observability import Logger
-from app.worker import Worker
+from app.worker.handler import Worker
 
 
 async def poll_loop():

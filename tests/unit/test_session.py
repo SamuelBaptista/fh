@@ -1,4 +1,4 @@
-from app.session import SessionState
+from app.core.session import SessionState
 
 
 def test_empty_session():
