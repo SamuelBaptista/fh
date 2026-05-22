@@ -48,7 +48,7 @@ Must process visible cases in `assets/fixtures/test-cases.json` and remain easy 
 | State | DynamoDB (3 tables: `loads`, `events`, `tool_calls`) | Always-free idle; conditional updates give optimistic concurrency safety net under FIFO. |
 | Timers | EventBridge Scheduler one-off schedules → SQS message | Free tier (14M invocations/mo), separate from `/submit-task`, re-enters worker like any event. |
 | Agent framework | Pydantic AI | Lightweight, type-safe tool calls, OpenAI-compatible client, OTel-friendly, no LangChain weight. |
-| LLM | OpenRouter; primary `anthropic/claude-sonnet-4.5`, fallback `openai/gpt-4o-mini` | One auth, two real providers — real fallback story, not a mock. |
+| LLM | OpenRouter; primary `anthropic/claude-sonnet-4.6`, fallback `openai/gpt-5.5` | One auth, two real providers — real fallback story, not a mock. |
 | SOP organization | Hybrid: deterministic router + typed customer policy + agent for classification & drafting | Bulletproof on tracking math, broker filter, geofence, channel match; LLM only for classification + message drafting; scales by adding YAML, not code. |
 | Local dev | docker-compose with LocalStack (SQS + DynamoDB + EventBridge) | Full parity to cloud, single command up, no AWS calls during dev. |
 | IaC | Terraform | Common, simple state file in S3 backend (or local for one-shot deploy). |
@@ -247,8 +247,8 @@ All endpoints: 202 + `{event_id}`. Validation via Pydantic models that mirror `c
 
 ## Model Fallback
 
-- Primary: `anthropic/claude-sonnet-4.5` via OpenRouter.
-- Fallback: `openai/gpt-4o-mini` via OpenRouter on retryable errors (`5xx`, rate limit, timeout).
+- Primary: `anthropic/claude-sonnet-4.6` via OpenRouter.
+- Fallback: `openai/gpt-5.5` via OpenRouter on retryable errors (`5xx`, rate limit, timeout).
 - Implementation: thin wrapper around Pydantic AI's model client that catches retryable exceptions, swaps to fallback model, retries once, logs which model handled the call.
 - Configurable via env: `LLM_PRIMARY`, `LLM_FALLBACK`, `LLM_MODE` (`live` | `mock` for offline runs).
 
@@ -274,7 +274,12 @@ All endpoints: 202 + `{event_id}`. Validation via Pydantic models that mirror `c
 - Worker Lambda IAM: SQS receive/delete, full CRUD on the three tables, scheduler create/delete, secrets read.
 - No `*` resources in policies.
 - Env vars never hold the OpenRouter key in cloud (Secrets Manager). Local uses `.env`.
-- Authorization on the public API: optional bearer token via env `API_KEY` (skipped if unset for review convenience; documented as a tradeoff).
+- Authorization on the public API: required bearer token via env `API_TOKEN`.
+  - FastAPI dependency rejects missing/mismatched token with 401.
+  - Token generated at deploy time, stored in AWS Secrets Manager, injected into Lambda env.
+  - Token value shared with FreightHero reviewers in the submission email + README "How to run" section.
+  - Local dev: token read from `.env` (`API_TOKEN=<value>`).
+  - Eval harness reads the same env var, sends header on every request.
 
 ## Repository Layout
 
