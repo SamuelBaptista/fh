@@ -1,5 +1,5 @@
 output "api_url" {
-  value = aws_lambda_function_url.api.function_url
+  value = "http://${aws_lb.api.dns_name}"
 }
 
 output "ecr_repository_url" {

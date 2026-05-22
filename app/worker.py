@@ -57,6 +57,7 @@ class Worker:
             for tc in decision.tool_calls:
                 tool_name = tc["tool"]
                 tool_args = tc.get("arguments", {})
+                tool_args = self._normalize_tool_args(tool_name, tool_args)
                 # Handle special cases
                 if tool_name == "check_attachment":
                     att_id = tool_args.get("attachment_id", "")
@@ -94,6 +95,16 @@ class Worker:
             "tool_calls": all_tool_calls,
             "session_state": session.to_dict(),
         }
+
+    @staticmethod
+    def _normalize_tool_args(tool_name: str, args: dict[str, Any]) -> dict[str, Any]:
+        if tool_name in ("send_sms", "send_email", "send_slack_message"):
+            if "to" in args and "recipient" not in args:
+                args["recipient"] = args.pop("to")
+        if tool_name == "send_email":
+            if "content" in args and "body" not in args:
+                args["body"] = args.pop("content")
+        return args
 
     @staticmethod
     def _find_attachment_classification(event: dict[str, Any], attachment_id: str) -> dict[str, Any]:
