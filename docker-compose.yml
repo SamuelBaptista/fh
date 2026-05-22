@@ -1,0 +1,43 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,dynamodb,scheduler
+      - DEBUG=0
+    volumes:
+      - "./infra/localstack/init.sh:/etc/localstack/init/ready.d/init.sh"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - SQS_QUEUE_URL=http://localstack:4566/000000000000/watchtower-events.fifo
+    depends_on:
+      localstack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  worker:
+    build: .
+    command: ["uv", "run", "python", "-m", "app.worker_sqs"]
+    env_file: .env
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - SQS_QUEUE_URL=http://localstack:4566/000000000000/watchtower-events.fifo
+    depends_on:
+      localstack:
+        condition: service_healthy
