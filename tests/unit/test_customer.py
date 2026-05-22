@@ -1,5 +1,5 @@
 import pytest
-from app.customer import CustomerPolicy, load_customer_policy, get_customer_policy
+from app.customer import get_customer_policy
 
 
 def test_customer_a_policy():

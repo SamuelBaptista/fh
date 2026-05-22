@@ -1,5 +1,8 @@
-import pytest
+import os
 import copy
+
+import pytest
+
 from app.worker import Worker
 
 
@@ -80,11 +83,6 @@ async def test_3h_tracking_three_pings(worker, test_cases, base_load_data):
     assert result["state"] == expected["expected_state"]
 
 
-# The following tests require live LLM. In mock mode, the agent returns a canned "no_action" response.
-# They are marked xfail when LLM_MODE=mock so the eval suite doesn't fail during offline development.
-# With LLM_MODE=live, these tests pass with real model responses.
-
-import os
 MOCK_MODE = os.environ.get("LLM_MODE", "mock") == "mock"
 
 

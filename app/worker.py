@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.agent import Agent, AgentDecision
+from app.agent import Agent
 from app.customer import get_customer_policy
 from app.dispatcher import Dispatcher
 from app.observability import Logger, JsonlWriter

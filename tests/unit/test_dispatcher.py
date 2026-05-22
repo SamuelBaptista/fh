@@ -1,5 +1,4 @@
-import pytest
-from app.dispatcher import Dispatcher, DispatchResult
+from app.dispatcher import Dispatcher
 from app.session import SessionState
 from app.customer import get_customer_policy
 

@@ -1,10 +1,8 @@
 import pytest
 from app.models import (
     LoadSeedRequest,
-    SubmitTaskRequest,
     InboundCommunicationEvent,
     TrackingEvent,
-    LoadUpdateEvent,
     Address,
     Stop,
     LoadData,
