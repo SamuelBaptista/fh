@@ -1,0 +1,11 @@
+customer_id: customer_a
+geofence_miles: 1.0
+eta_followup_minutes: 30
+escalation_channels:
+  - email
+pod_validation: automatic
+pod_received_visibility: true
+delivered_no_pod_visibility: true
+missing_info_visibility: false
+lumper_strategy: review_task
+first_arrival_message: "Thanks for the update! Please let us know when unloading is complete and send POD when available."

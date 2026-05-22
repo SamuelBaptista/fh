@@ -1,0 +1,11 @@
+customer_id: customer_b
+geofence_miles: 2.0
+eta_followup_minutes: 60
+escalation_channels:
+  - slack
+pod_validation: human_review
+pod_received_visibility: false
+delivered_no_pod_visibility: false
+missing_info_visibility: true
+lumper_strategy: review_task
+first_arrival_message: "Got it! Please confirm when unloading starts and send POD when you're empty."

@@ -1,0 +1,12 @@
+customer_id: customer_c
+geofence_miles: 3.0
+eta_followup_minutes: 45
+escalation_channels:
+  - email
+  - slack
+pod_validation: automatic
+pod_received_visibility: false
+delivered_no_pod_visibility: true
+missing_info_visibility: false
+lumper_strategy: forward_email_for_email_attachments
+first_arrival_message: "Thanks! Please send unloading updates, POD, and any lumper receipt when available."
