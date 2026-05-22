@@ -1,0 +1,26 @@
+[project]
+name = "fh"
+version = "0.1.0"
+description = "Watchtower Mini - AI freight agent system"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "pydantic-ai>=0.2.0",
+    "boto3>=1.35.0",
+    "pyyaml>=6.0",
+    "httpx>=0.28.0",
+    "mangum>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.25.0",
+    "moto[dynamodb,sqs,scheduler]>=5.0",
+    "httpx>=0.28.0",
+    "ruff>=0.8.0",
+]
