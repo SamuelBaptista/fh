@@ -1,0 +1,103 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: watchtower-mini
+  ECS_CLUSTER: watchtower-mini
+  ECS_SERVICE_API: watchtower-mini-api
+  ECS_SERVICE_WORKER: watchtower-mini-worker
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.10.12"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Lint
+        run: uv run ruff check app/ tests/
+
+      - name: Unit tests
+        run: uv run pytest tests/unit tests/integration -v
+
+      - name: Eval (mock mode)
+        run: uv run pytest tests/eval -v --tb=short
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --platform linux/amd64 --provenance=false \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Update ECS API service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE_API \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      - name: Update ECS Worker service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE_WORKER \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      - name: Wait for API service stability
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE_API \
+            --region $AWS_REGION
+        timeout-minutes: 5
+
+      - name: Smoke test deployed endpoint
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          sleep 10
+          API_URL="http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com"
+          HEALTH=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/health")
+          if [ "$HEALTH" != "200" ]; then
+            echo "Health check failed with status $HEALTH"
+            exit 1
+          fi
+          echo "Deployment healthy!"
