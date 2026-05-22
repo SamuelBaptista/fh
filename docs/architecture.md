@@ -21,12 +21,13 @@ This reduces cost, improves reliability for deterministic cases, and makes the s
 
 ## Component Architecture
 
-### API Layer (FastAPI on Lambda)
+### API Layer (FastAPI on ECS Fargate + ALB)
 - Validates incoming requests against Pydantic models
 - Authenticates via bearer token
 - Persists load data to DynamoDB (for `/loads`)
 - Enqueues events to SQS FIFO with `MessageGroupId = load_id`
 - Returns 202 immediately — processing is async
+- Exposed via Application Load Balancer on HTTP port 80
 
 ### Queue (SQS FIFO)
 - `MessageGroupId = load_id` ensures in-order processing per load
@@ -34,7 +35,8 @@ This reduces cost, improves reliability for deterministic cases, and makes the s
 - Content-based deduplication prevents duplicate processing
 - Visibility timeout of 60s accommodates LLM latency
 
-### Worker (Lambda triggered by SQS)
+### Worker (ECS Fargate service with SQS polling)
+- Long-polls SQS FIFO queue for events
 - Reads load state from DynamoDB (consistent read)
 - Routes event through Dispatcher (deterministic) or Agent (LLM)
 - Executes tool calls, records them
@@ -54,7 +56,7 @@ This reduces cost, improves reliability for deterministic cases, and makes the s
 - Mock mode for offline testing
 
 ### Customer Policy
-- Typed YAML files in `assets/customers/`
+- Typed YAML files in `app/config/customers/`
 - One file per customer with all behavior parameters
 - Adding a customer = adding a file, no code changes
 - Policy fields cover: geofence, ETA timing, escalation channels, POD validation, lumper handling, visibility rules, first-arrival message
@@ -92,12 +94,13 @@ This keeps timers separate from `/submit-task` (as required) while using the sam
 
 | Decision | Tradeoff |
 |----------|----------|
-| Lambda vs ECS | Scales to zero (free when idle) but cold start ~1-2s |
+| ECS Fargate vs Lambda | Better for long-running operations and simpler container deployment, but always-on costs more than Lambda scale-to-zero |
 | DynamoDB vs Postgres | Free tier, no connection pooling needed, but less flexible queries |
 | Mock tools vs real | Faster dev, testable, but no real delivery verification |
 | Hybrid routing vs pure-agent | More code to maintain, but deterministic cases are bullet-proof |
 | SQS FIFO vs standard | Guaranteed ordering per load, but throughput cap (300 msg/s per group) |
 | Single-region | No HA, but adequate for evaluation traffic |
+| ALB vs API Gateway | Simpler for container-based services, HTTP only (no custom domains needed for eval) |
 
 ## What I Would Do Differently With More Time
 

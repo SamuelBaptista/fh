@@ -4,9 +4,9 @@ AI agent system for freight load event processing. Handles ETA checkpoint and de
 
 ## Deployed Endpoint
 
-**URL**: _(to be filled after deploy)_
+**URL**: `http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com`
 
-**Auth**: All endpoints require `Authorization: Bearer <token>` header.
+**Auth**: All endpoints require `Authorization: Bearer fh-eval-token-2026` header.
 
 ## Quick Start
 
@@ -62,33 +62,33 @@ See `docs/architecture.md` for full write-up.
 ## Architecture
 
 ```
-FastAPI (Lambda) → SQS FIFO → Worker (Lambda) → DynamoDB
-                                    │
-                        ┌───────────┴───────────┐
-                        ▼                       ▼
-                 Dispatcher              Agent (LLM)
-                 (deterministic)         (classification)
-                        │                       │
-                        └───────────┬───────────┘
-                                    ▼
-                            Tool Executor
-                            (mock + record)
+FastAPI (ECS Fargate + ALB) → SQS FIFO → Worker (ECS Fargate) → DynamoDB
+                                              │
+                                  ┌───────────┴───────────┐
+                                  ▼                       ▼
+                           Dispatcher              Agent (LLM)
+                           (deterministic)         (classification)
+                                  │                       │
+                                  └───────────┬───────────┘
+                                              ▼
+                                      Tool Executor
+                                      (mock + record)
 ```
 
 ## Cloud Resources
 
-- **Lambda** × 2 (API + Worker) — container images from ECR
+- **ECS Fargate** × 2 services (API + Worker) — container images from ECR
+- **Application Load Balancer (ALB)** — public HTTP endpoint on port 80
 - **SQS FIFO** — per-load event ordering
 - **DynamoDB** × 3 (loads, events, tool_calls)
 - **EventBridge Scheduler** — timer follow-ups
 - **ECR** — container image registry
+- **Secrets Manager** — API_TOKEN and OPEN_ROUTER_API_KEY
 - **CloudWatch** — structured JSON logs
-
-All within AWS free tier for evaluation traffic.
 
 ## Secrets Management
 
 - `.env` for local development (gitignored)
-- AWS Lambda environment variables for deployed secrets
+- AWS Secrets Manager for deployed secrets (API_TOKEN, OPEN_ROUTER_API_KEY)
 - No secrets committed to repository
 - Bearer token (`API_TOKEN`) required on all write endpoints

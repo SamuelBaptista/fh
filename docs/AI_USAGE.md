@@ -18,18 +18,18 @@
 
 ## Manual Decisions
 
-- **Architecture**: Lambda + SQS + DynamoDB over ECS/RDS (cost optimization for throwaway eval traffic)
+- **Architecture**: ECS Fargate + SQS + DynamoDB (better for long-running operations, simpler container deployment)
 - **Hybrid SOP routing**: deterministic gates for exact rules + LLM only for ambiguous classification (reduces cost, improves reliability for deterministic cases)
 - **Customer policy as typed YAML**: scales by adding files, not prompt edits
 - **Model fallback strategy**: real multi-provider via OpenRouter, not mocked
 - **Eval design**: in-process runner for fast CI + xfail for agent-dependent tests in mock mode
-- **Security posture**: bearer token auth, least-privilege IAM per Lambda function
-- **Free-tier targeting**: Lambda Function URL instead of API Gateway to minimize cost
+- **Security posture**: bearer token auth via Secrets Manager, least-privilege IAM per ECS service
+- **ALB over API Gateway**: simpler for container-based services, adequate for evaluation traffic
 
 ## AI Output Rejected or Corrected
 
 - Rejected initial suggestion to use LangGraph (adds dependency surface without proportional benefit for this scope)
 - Corrected model names to match current OpenRouter identifiers
-- Rejected API Gateway in favor of Lambda Function URL (simpler, cheaper)
+- Moved from Lambda to ECS Fargate after initial deployment (better for long-running operations, simpler container management)
 - Adjusted customer policy fields after reviewing customer-expectations.md more carefully
 - Removed unnecessary error handling around broker filtering (deterministic path doesn't need try/except)
