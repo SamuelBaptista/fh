@@ -1,0 +1,69 @@
+graph TB
+    subgraph Internet
+        User([Users / Reviewers])
+    end
+
+    subgraph "AWS Account (us-east-1)"
+        subgraph "VPC - Default"
+            ALB[Application Load Balancer<br/>Port 80 → 8000]
+
+            subgraph "ECS Cluster: watchtower-mini"
+                API[API Task<br/>256 CPU / 512 MB<br/>uvicorn app.api.routes:app]
+                Worker[Worker Task<br/>256 CPU / 512 MB<br/>python -m app.worker.sqs_poller]
+            end
+        end
+
+        ECR[ECR Repository<br/>watchtower-mini:latest]
+        SQS[[SQS FIFO Queue<br/>watchtower-mini-events.fifo]]
+
+        subgraph "DynamoDB Tables"
+            Loads[(watchtower-mini-loads)]
+            Events[(watchtower-mini-events)]
+            Tools[(watchtower-mini-tool-calls)]
+        end
+
+        Secrets[Secrets Manager<br/>API_TOKEN<br/>OPEN_ROUTER_API_KEY]
+        Scheduler[EventBridge Scheduler<br/>Timer one-off schedules]
+        CW[CloudWatch Logs<br/>/ecs/watchtower-mini]
+    end
+
+    subgraph "GitHub"
+        Repo[SamuelBaptista/fh]
+        Actions[GitHub Actions<br/>CI/CD Pipeline]
+    end
+
+    User -->|HTTP| ALB
+    ALB --> API
+    API --> SQS
+    Worker --> SQS
+    API --> Loads
+    Worker --> Loads
+    Worker --> Events
+    Worker --> Tools
+    Worker --> Scheduler
+    Scheduler --> SQS
+    API -.->|pull secrets| Secrets
+    Worker -.->|pull secrets| Secrets
+    API --> CW
+    Worker --> CW
+    Actions -->|Push image| ECR
+    Actions -->|Force deploy| API
+    Actions -->|Force deploy| Worker
+    ECR -.->|Pull image| API
+    ECR -.->|Pull image| Worker
+    Repo -->|push to main| Actions
+
+    style User fill:#e1f5fe
+    style ALB fill:#ff9800,color:#fff
+    style API fill:#4caf50,color:#fff
+    style Worker fill:#4caf50,color:#fff
+    style ECR fill:#795548,color:#fff
+    style SQS fill:#9c27b0,color:#fff
+    style Loads fill:#1565c0,color:#fff
+    style Events fill:#1565c0,color:#fff
+    style Tools fill:#1565c0,color:#fff
+    style Secrets fill:#d32f2f,color:#fff
+    style Scheduler fill:#7b1fa2,color:#fff
+    style CW fill:#616161,color:#fff
+    style Actions fill:#2196f3,color:#fff
+    style Repo fill:#333,color:#fff

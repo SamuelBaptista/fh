@@ -1,0 +1,39 @@
+graph LR
+    Client([Client]) -->|POST /loads<br/>POST /events/*| ALB[ALB<br/>Port 80]
+    ALB --> API[API Service<br/>ECS Fargate]
+    API -->|PUT load| DynamoDB[(DynamoDB<br/>loads)]
+    API -->|SendMessage<br/>GroupId=load_id| SQS[[SQS FIFO<br/>watchtower-events.fifo]]
+    SQS -->|Long poll| Worker[Worker Service<br/>ECS Fargate]
+    Worker -->|GetItem<br/>ConsistentRead| DynamoDB
+    Worker -->|UpdateItem<br/>version++| DynamoDB
+    Worker -->|PutItem| Events[(DynamoDB<br/>events)]
+    Worker -->|BatchWrite| ToolCalls[(DynamoDB<br/>tool_calls)]
+    Worker -->|CreateSchedule| Scheduler[EventBridge<br/>Scheduler]
+    Scheduler -->|Timer fires| SQS
+    Worker -->|OpenRouter API| LLM[LLM<br/>Claude Sonnet / GPT-4o-mini]
+
+    subgraph AWS Cloud
+        ALB
+        API
+        SQS
+        Worker
+        DynamoDB
+        Events
+        ToolCalls
+        Scheduler
+    end
+
+    subgraph External
+        LLM
+    end
+
+    style Client fill:#e1f5fe
+    style ALB fill:#ff9800,color:#fff
+    style API fill:#4caf50,color:#fff
+    style Worker fill:#4caf50,color:#fff
+    style SQS fill:#9c27b0,color:#fff
+    style DynamoDB fill:#1565c0,color:#fff
+    style Events fill:#1565c0,color:#fff
+    style ToolCalls fill:#1565c0,color:#fff
+    style Scheduler fill:#7b1fa2,color:#fff
+    style LLM fill:#f44336,color:#fff
