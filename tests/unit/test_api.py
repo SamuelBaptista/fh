@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from app.api import app
 
 
@@ -43,8 +43,11 @@ async def test_loads_endpoint_success(auth_headers):
     }
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        with patch("app.api.enqueue_event") as mock_enqueue:
+        with patch("app.api.enqueue_event") as mock_enqueue, patch("app.api.get_db") as mock_get_db:
             mock_enqueue.return_value = None
+            mock_db = MagicMock()
+            mock_db.put_load.return_value = None
+            mock_get_db.return_value = mock_db
             resp = await client.post("/loads", json=body, headers=auth_headers)
     assert resp.status_code == 202
     data = resp.json()

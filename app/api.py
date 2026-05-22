@@ -7,6 +7,8 @@ from fastapi import Depends, FastAPI, HTTPException, Header
 from pydantic import BaseModel
 
 from app.config import settings
+from app.db import DynamoDBClient
+from app.queue import SQSClient
 from app.models import (
     InboundCommunicationEvent,
     LoadSeedRequest,
@@ -17,6 +19,23 @@ from app.models import (
 
 
 app = FastAPI(title="Watchtower Mini", version="0.1.0")
+
+_db: DynamoDBClient | None = None
+_queue: SQSClient | None = None
+
+
+def get_db() -> DynamoDBClient:
+    global _db
+    if _db is None:
+        _db = DynamoDBClient()
+    return _db
+
+
+def get_queue() -> SQSClient:
+    global _queue
+    if _queue is None:
+        _queue = SQSClient()
+    return _queue
 
 
 async def verify_token(authorization: str = Header(default="")) -> str:
@@ -38,13 +57,20 @@ class AcceptedResponse(BaseModel):
 
 
 async def enqueue_event(event_data: dict, load_id: str) -> None:
-    """Send event to SQS. Mocked in tests, real impl uses boto3."""
-    pass
+    get_queue().send_event(event_data, load_id)
 
 
 @app.post("/loads", status_code=202, response_model=AcceptedResponse)
 async def create_load(body: LoadSeedRequest, _token: AuthDep = "") -> AcceptedResponse:
     event_id = f"evt-seed-{uuid.uuid4().hex[:8]}"
+    get_db().put_load({
+        "load_id": body.load_id,
+        "customer_id": body.customer_id,
+        "state": body.initial_state or "on_route_to_delivery",
+        "version": 1,
+        "load_data": body.load_data.model_dump(),
+        "session_state": {},
+    })
     await enqueue_event(body.model_dump(), body.load_id)
     return AcceptedResponse(event_id=event_id, load_id=body.load_id)
 
