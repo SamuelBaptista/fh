@@ -11,3 +11,11 @@ wheels/
 
 # Env files
 .env
+
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/terraform.tfstate*
+infra/terraform/.terraform.lock.hcl
+
+# Runs (trace artifacts, kept selectively)
+runs/
