@@ -52,7 +52,7 @@ This reduces cost, improves reliability for deterministic cases, and makes the s
 ### Agent
 - Receives: SOP markdown + customer policy + event + load data + session context
 - Returns: structured JSON decision (intent, branch, reasoning, tool_calls, draft_message)
-- Fallback: Claude Sonnet 4.6 → GPT-4o-mini on retryable errors
+- Fallback: Anthropic (primary) → OpenAI (secondary) on retryable errors
 - Mock mode for offline testing
 
 ### Customer Policy

@@ -64,7 +64,7 @@ Each eval test asserts:
 
 ## Model Performance
 
-- **Primary**: `anthropic/claude-sonnet-4-6` via OpenRouter
+- **Primary**: Anthropic via OpenRouter
+- **Fallback**: OpenAI via OpenRouter (not triggered in testing — primary has been reliable)
 - **Average latency**: 4-10s per agent decision (multi-turn tool loop)
 - **Token usage**: ~2500 input + 200-450 output per event
-- **Fallback**: `openai/gpt-4o-mini` (not triggered in testing — primary has been reliable)
