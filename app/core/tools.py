@@ -29,58 +29,58 @@ class ToolExecutor:
     def get_records(self) -> list[ToolCallRecord]:
         return self._records
 
-    def send_sms(self, recipient: str, message: str) -> dict[str, Any]:
+    def send_sms(self, recipient: str, message: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "channel": "sms", "message_id": f"sms-{uuid.uuid4().hex[:8]}"}
         return self._record("send_sms", {"recipient": recipient, "message": message}, result)
 
-    def send_email(self, recipient: str, subject: str, body: str) -> dict[str, Any]:
+    def send_email(self, recipient: str, subject: str, body: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "channel": "email", "message_id": f"email-{uuid.uuid4().hex[:8]}"}
         return self._record("send_email", {"recipient": recipient, "subject": subject, "body": body}, result)
 
-    def forward_email(self) -> dict[str, Any]:
+    def forward_email(self, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "channel": "email", "message_id": f"fwd-{uuid.uuid4().hex[:8]}"}
         return self._record("forward_email", {}, result)
 
-    def send_slack_message(self, audience: str, message: str, escalation_type: str | None = None) -> dict[str, Any]:
+    def send_slack_message(self, audience: str, message: str, escalation_type: str | None = None, **kwargs: Any) -> dict[str, Any]:
         args: dict[str, Any] = {"audience": audience, "message": message}
         if escalation_type:
             args["escalation_type"] = escalation_type
         result = {"ok": True, "channel": "slack", "message_id": f"slack-{uuid.uuid4().hex[:8]}"}
         return self._record("send_slack_message", args, result)
 
-    def check_attachment(self, attachment_id: str, mock_categories: list[str] | None = None, mock_description: str = "") -> dict[str, Any]:
+    def check_attachment(self, attachment_id: str, mock_categories: list[str] | None = None, mock_description: str = "", **kwargs: Any) -> dict[str, Any]:
         categories = mock_categories or ["other"]
         result = {"ok": True, "attachment_id": attachment_id, "categories": categories, "description": mock_description}
         return self._record("check_attachment", {"attachment_id": attachment_id}, result)
 
-    def update_load_state(self, target_state: str, reason: str) -> dict[str, Any]:
+    def update_load_state(self, target_state: str, reason: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "previous_state": "", "new_state": target_state}
         return self._record("update_load_state", {"target_state": target_state, "reason": reason}, result)
 
-    def update_eta(self, target_location: str, eta_utc: str, source: str) -> dict[str, Any]:
+    def update_eta(self, target_location: str, eta_utc: str, source: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "target_location": target_location, "eta_utc": eta_utc}
         return self._record("update_eta", {"target_location": target_location, "eta_utc": eta_utc, "source": source}, result)
 
-    def create_timer(self, timer_type: str, fire_at_utc: str, reason: str) -> dict[str, Any]:
+    def create_timer(self, timer_type: str, fire_at_utc: str, reason: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "timer_id": f"timer-{uuid.uuid4().hex[:8]}"}
         return self._record("create_timer", {"timer_type": timer_type, "fire_at_utc": fire_at_utc, "reason": reason}, result)
 
-    def cancel_timers(self, timer_type: str | None = None) -> dict[str, Any]:
+    def cancel_timers(self, timer_type: str | None = None, **kwargs: Any) -> dict[str, Any]:
         args: dict[str, Any] = {}
         if timer_type:
             args["timer_type"] = timer_type
         result = {"ok": True}
         return self._record("cancel_timers", args, result)
 
-    def create_task(self, title: str, description: str, task_type: str) -> dict[str, Any]:
+    def create_task(self, title: str, description: str, task_type: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "task_id": f"task-{uuid.uuid4().hex[:8]}"}
         return self._record("create_task", {"title": title, "description": description, "task_type": task_type}, result)
 
-    def create_issue(self, title: str, description: str, issue_type: str) -> dict[str, Any]:
+    def create_issue(self, title: str, description: str, issue_type: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "issue_id": f"issue-{uuid.uuid4().hex[:8]}"}
         return self._record("create_issue", {"title": title, "description": description, "issue_type": issue_type}, result)
 
-    def get_load_info(self, field: str, load_data: dict[str, Any] | None = None) -> dict[str, Any]:
+    def get_load_info(self, field: str, load_data: dict[str, Any] | None = None, **kwargs: Any) -> dict[str, Any]:
         value = self._resolve_field(field, load_data or {})
         if value is None:
             result = {"ok": False, "field": field, "error": "missing"}
@@ -88,11 +88,11 @@ class ToolExecutor:
             result = {"ok": True, "field": field, "value": value}
         return self._record("get_load_info", {"field": field}, result)
 
-    def validate_eta(self, raw_eta: str, delivery_timezone: str) -> dict[str, Any]:
+    def validate_eta(self, raw_eta: str, delivery_timezone: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "eta_utc": "2026-05-11T19:30:00Z", "is_plausible": True}
         return self._record("validate_eta", {"raw_eta": raw_eta, "delivery_timezone": delivery_timezone}, result)
 
-    def get_appointment_time(self, stop_type: str) -> dict[str, Any]:
+    def get_appointment_time(self, stop_type: str, **kwargs: Any) -> dict[str, Any]:
         result = {"ok": True, "stop_type": stop_type, "appointment": {"type": "fixed", "start_utc": "2026-05-11T20:00:00Z", "timezone": "America/Chicago"}}
         return self._record("get_appointment_time", {"stop_type": stop_type}, result)
 

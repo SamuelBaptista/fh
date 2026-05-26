@@ -1,0 +1,7 @@
+# Scale to 0 (stops billing for tasks, ALB still charges ~$5.50)
+AWS_PROFILE=personal aws ecs update-service --cluster watchtower-mini --service watchtower-mini-api --desired-count 0
+AWS_PROFILE=personal aws ecs update-service --cluster watchtower-mini --service watchtower-mini-worker --desired-count 0
+
+# Scale back up when ready
+AWS_PROFILE=personal aws ecs update-service --cluster watchtower-mini --service watchtower-mini-api --desired-count 1
+AWS_PROFILE=personal aws ecs update-service --cluster watchtower-mini --service watchtower-mini-worker --desired-count 1

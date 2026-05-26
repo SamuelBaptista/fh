@@ -104,10 +104,9 @@ This keeps timers separate from `/submit-task` (as required) while using the sam
 
 ## What I Would Do Differently With More Time
 
-1. **Live eval pass rate**: tune the agent prompt to achieve >90% on all visible cases with live LLM
-2. **Multi-turn session context**: richer session state for follow-up events that reference prior context
-3. **Timer integration test**: end-to-end test where a timer fires and re-enters the worker
-4. **Metrics dashboard**: CloudWatch dashboard with key indicators (latency, error rate, model usage)
-5. **Customer config validation**: schema enforcement on YAML + integration tests per customer
-6. **Prompt versioning**: track prompt versions in traces for A/B comparison
-7. **Rate limiting**: per-customer rate limits on the public API
+**Multi-turn session context**: richer session state for follow-up events that reference prior context
+**Timer integration test**: end-to-end test where a timer fires and re-enters the worker
+**Metrics dashboard**: CloudWatch dashboard with key indicators (latency, error rate, model usage)
+**Customer config validation**: schema enforcement on YAML + integration tests per customer
+**Prompt versioning**: track prompt versions in traces for A/B comparison
+**Rate limiting**: per-customer rate limits on the public API
