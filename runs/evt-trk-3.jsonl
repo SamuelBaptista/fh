@@ -1,0 +1,2 @@
+{"tool_call_id": "c936dc61-97cb-441b-965c-1f19389c9cf8", "event_id": "evt-trk-3", "load_id": "load-1", "tool": "update_load_state", "arguments": {"target_state": "at_delivery", "reason": "3 consecutive pings inside 2.0mi geofence"}, "result": {"ok": true, "previous_state": "", "new_state": "at_delivery"}, "created_at": "2026-05-26T14:19:46.517669+00:00"}
+{"tool_call_id": "29d8b68d-1f62-4006-a411-edc8c5641a58", "event_id": "evt-trk-3", "load_id": "load-1", "tool": "cancel_timers", "arguments": {}, "result": {"ok": true}, "created_at": "2026-05-26T14:19:46.517701+00:00"}
