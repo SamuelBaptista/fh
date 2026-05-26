@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock, patch
-from app.timer import TimerClient
+from app.infra.timer import TimerClient
 
 
 def test_schedule_timer():
-    with patch("app.timer.boto3") as mock_boto:
+    with patch("app.infra.timer.boto3") as mock_boto:
         mock_client = MagicMock()
         mock_boto.client.return_value = mock_client
         mock_client.create_schedule.return_value = {"ScheduleArn": "arn:test"}
@@ -16,7 +16,7 @@ def test_schedule_timer():
 
 
 def test_cancel_timer():
-    with patch("app.timer.boto3") as mock_boto:
+    with patch("app.infra.timer.boto3") as mock_boto:
         mock_client = MagicMock()
         mock_boto.client.return_value = mock_client
         tc = TimerClient()

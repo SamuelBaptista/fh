@@ -1,5 +1,5 @@
 import pytest
-from app.tools import ToolExecutor
+from app.core.tools import ToolExecutor
 
 
 @pytest.fixture

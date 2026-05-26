@@ -13,4 +13,4 @@ COPY assets/ ./assets/
 ENV PYTHONPATH=/app
 ENV PORT=8000
 
-CMD ["uv", "run", "uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "app.api.routes:app", "--host", "0.0.0.0", "--port", "8000"]

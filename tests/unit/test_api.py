@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 from unittest.mock import patch, MagicMock
-from app.api import app
+from app.api.routes import app
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ async def test_loads_endpoint_success(auth_headers):
     }
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        with patch("app.api.enqueue_event") as mock_enqueue, patch("app.api.get_db") as mock_get_db:
+        with patch("app.api.routes.enqueue_event") as mock_enqueue, patch("app.api.routes.get_db") as mock_get_db:
             mock_enqueue.return_value = None
             mock_db = MagicMock()
             mock_db.put_load.return_value = None
@@ -72,7 +72,7 @@ async def test_events_inbound_communication(auth_headers):
     }
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        with patch("app.api.enqueue_event") as mock_enqueue:
+        with patch("app.api.routes.enqueue_event") as mock_enqueue:
             mock_enqueue.return_value = None
             resp = await client.post("/events/inbound-communication", json=body, headers=auth_headers)
     assert resp.status_code == 202
@@ -97,7 +97,7 @@ async def test_events_tracking(auth_headers):
     }
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        with patch("app.api.enqueue_event") as mock_enqueue:
+        with patch("app.api.routes.enqueue_event") as mock_enqueue:
             mock_enqueue.return_value = None
             resp = await client.post("/events/tracking", json=body, headers=auth_headers)
     assert resp.status_code == 202

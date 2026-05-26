@@ -1,7 +1,7 @@
 import pytest
 import boto3
 from moto import mock_aws
-from app.db import DynamoDBClient
+from app.infra.db import DynamoDBClient
 
 
 @pytest.fixture

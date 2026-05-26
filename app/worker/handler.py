@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.agent import Agent
-from app.customer import get_customer_policy
-from app.dispatcher import Dispatcher
+from app.agent.agent import Agent
+from app.config.customer import get_customer_policy
+from app.agent.dispatcher import Dispatcher
 from app.observability import Logger, JsonlWriter
-from app.session import SessionState
-from app.tools import ToolExecutor
+from app.core.session import SessionState
+from app.core.tools import ToolExecutor
 
 
 class Worker:
@@ -49,30 +49,26 @@ class Worker:
 
             all_tool_calls = [r.model_dump() for r in executor.get_records()]
         else:
-            # Agent handles classification + tool decisions
-            decision = await self._agent.decide(event, session, policy, load_data)
-            log.info("agent.decision", intent=decision.intent, branch=decision.branch, reasoning=decision.reasoning, model=decision.model_used)
-
-            # Execute agent-planned tool calls
-            for tc in decision.tool_calls:
-                tool_name = tc["tool"]
-                tool_args = tc.get("arguments", {})
-                tool_args = self._normalize_tool_args(tool_name, tool_args)
-                # Handle special cases
+            # Build tool executor function for the LLM tool loop
+            def execute_tool(tool_name: str, tool_args: dict[str, Any]) -> dict[str, Any]:
                 if tool_name == "check_attachment":
                     att_id = tool_args.get("attachment_id", "")
                     mock_class = self._find_attachment_classification(event, att_id)
-                    executor.check_attachment(
+                    return executor.check_attachment(
                         attachment_id=att_id,
                         mock_categories=mock_class.get("categories", ["other"]),
                         mock_description=mock_class.get("description", ""),
                     )
                 elif tool_name == "get_load_info":
-                    executor.get_load_info(field=tool_args.get("field", ""), load_data=load_data)
+                    return executor.get_load_info(field=tool_args.get("field", ""), load_data=load_data)
                 elif hasattr(executor, tool_name):
-                    getattr(executor, tool_name)(**tool_args)
+                    return getattr(executor, tool_name)(**tool_args)
+                return {"ok": False, "error": f"Unknown tool: {tool_name}"}
 
-            # Check for state transitions in agent tool calls
+            decision = await self._agent.decide(event, session, policy, load_data, tool_executor_fn=execute_tool)
+            log.info("agent.decision", intent=decision.intent, branch=decision.branch, reasoning=decision.reasoning, model=decision.model_used)
+
+            # Check for state transitions in executed tool calls
             for rec in executor.get_records():
                 if rec.tool == "update_load_state":
                     new_state = rec.arguments.get("target_state", new_state)
@@ -95,16 +91,6 @@ class Worker:
             "tool_calls": all_tool_calls,
             "session_state": session.to_dict(),
         }
-
-    @staticmethod
-    def _normalize_tool_args(tool_name: str, args: dict[str, Any]) -> dict[str, Any]:
-        if tool_name in ("send_sms", "send_email", "send_slack_message"):
-            if "to" in args and "recipient" not in args:
-                args["recipient"] = args.pop("to")
-        if tool_name == "send_email":
-            if "content" in args and "body" not in args:
-                args["body"] = args.pop("content")
-        return args
 
     @staticmethod
     def _find_attachment_classification(event: dict[str, Any], attachment_id: str) -> dict[str, Any]:

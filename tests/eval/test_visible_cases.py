@@ -3,7 +3,7 @@ import copy
 
 import pytest
 
-from app.worker import Worker
+from app.worker.handler import Worker
 
 
 def apply_patch(load_data: dict, patch: dict) -> dict:
@@ -44,7 +44,8 @@ def make_load_row(base_load: dict, case: dict) -> dict:
 
 @pytest.fixture
 def worker():
-    return Worker(llm_mode="mock")
+    mode = os.environ.get("LLM_MODE", "mock")
+    return Worker(llm_mode=mode)
 
 
 @pytest.mark.asyncio

@@ -6,7 +6,7 @@ from typing import Any
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
-from app.config import settings
+from app.config.settings import settings
 
 
 class DynamoDBClient:

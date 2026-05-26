@@ -1,0 +1,42 @@
+flowchart TD
+    Start([SQS Message Received]) --> LoadState[Load state from DynamoDB]
+    LoadState --> Route{Dispatcher Route}
+
+    Route -->|sender=broker| Ignore[Log broker_ignored<br/>No tools called]
+    Route -->|event=tracking| Tracking{Distance ≤ geofence?}
+    Route -->|event=communication<br/>sender≠broker| Agent[Agent Tool Loop]
+
+    Tracking -->|No| ResetStreak[Reset ping streak]
+    Tracking -->|Yes| IncrStreak[Increment streak]
+    IncrStreak --> Check3{Streak ≥ 3?}
+    Check3 -->|No| Done1[Keep state<br/>on_route_to_delivery]
+    Check3 -->|Yes| Arrival[update_load_state → at_delivery<br/>cancel_timers]
+
+    Agent --> LLM[Call LLM with tools schema]
+    LLM --> ToolCalls{Tool calls returned?}
+    ToolCalls -->|Yes| Execute[Execute tools<br/>Record results]
+    Execute --> FeedBack[Feed results back to LLM]
+    FeedBack --> LLM
+    ToolCalls -->|No / finish_reason=stop| ParseDecision[Parse decision]
+
+    ParseDecision --> UpdateState[Update load state if changed]
+
+    Ignore --> Persist
+    Done1 --> Persist
+    Arrival --> Persist
+    ResetStreak --> Persist
+    UpdateState --> Persist
+
+    Persist[Persist to DynamoDB<br/>version++ conditional update] --> WriteEvents[Write event record]
+    WriteEvents --> WriteTools[Write tool_call records]
+    WriteTools --> JSONL[Write JSONL trace]
+    JSONL --> End([Done])
+
+    style Start fill:#e1f5fe
+    style End fill:#e1f5fe
+    style Ignore fill:#9e9e9e,color:#fff
+    style Arrival fill:#4caf50,color:#fff
+    style Agent fill:#ff9800,color:#fff
+    style LLM fill:#f44336,color:#fff
+    style Execute fill:#2196f3,color:#fff
+    style Persist fill:#1565c0,color:#fff

@@ -20,7 +20,7 @@ class CustomerPolicy(BaseModel):
     first_arrival_message: str
 
 
-_CUSTOMERS_DIR = Path(__file__).parent.parent / "assets" / "customers"
+_CUSTOMERS_DIR = Path(__file__).parent / "customers"
 _cache: dict[str, CustomerPolicy] = {}
 
 
