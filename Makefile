@@ -27,6 +27,7 @@ down:
 
 logs:
 	@echo "Fetching latest CloudWatch logs from deployed service..."
+	@mkdir -p runs
 	@aws logs filter-log-events \
 		--log-group-name "/ecs/watchtower-mini" \
 		--start-time $$(date -d "10 minutes ago" +%s000 2>/dev/null || date -v-10M +%s000) \

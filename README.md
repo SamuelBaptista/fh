@@ -30,9 +30,9 @@ LLM_MODE=live make eval     # Live mode (all 8 cases, needs OPEN_ROUTER_API_KEY)
 ```
 
 ### 5. Trace / Log Evidence
-- `runs/evt-*.jsonl` — JSONL tool call records from live eval run
-- `make logs` — fetches latest CloudWatch logs from deployed service
-- `runs/deployed-run-evidence.log` — captured deployed run output
+- `runs/evt-*.jsonl` — JSONL tool call records from live eval run (committed)
+- `runs/deployed-run-evidence.log` — captured deployed run output (committed)
+- `make logs` — fetches latest CloudWatch logs (requires AWS credentials with access to the deployment account)
 
 ### 6. Architecture & Tradeoff Write-Up
 - `docs/architecture.md` — full write-up
@@ -141,10 +141,10 @@ make down
 
 **Option 3: Against deployed endpoint**
 ```bash
-# Run eval against live AWS deployment
+# Run eval against live AWS deployment (no AWS credentials needed — just OpenRouter key)
 LLM_MODE=live API_URL=http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com make eval
 
-# Fetch CloudWatch logs as trace evidence
+# Fetch CloudWatch logs as trace evidence (requires AWS credentials for the deployment account)
 make logs
 ```
 
