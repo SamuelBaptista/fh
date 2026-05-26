@@ -13,6 +13,7 @@ make format                 # Ruff format
 make up                     # docker-compose up (LocalStack + API + Worker)
 make down                   # docker-compose down
 make run                    # Local dev server (uvicorn, no queue)
+make logs                   # Fetch latest CloudWatch logs → runs/deployed-run-evidence.log
 ```
 
 ## Architecture

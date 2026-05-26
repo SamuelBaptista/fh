@@ -1,4 +1,4 @@
-.PHONY: install test eval lint run dev up down
+.PHONY: install test eval lint format run up down logs
 
 install:
 	uv sync --all-extras
@@ -24,3 +24,13 @@ up:
 
 down:
 	docker compose down -v
+
+logs:
+	@echo "Fetching latest CloudWatch logs from deployed service..."
+	@aws logs filter-log-events \
+		--log-group-name "/ecs/watchtower-mini" \
+		--start-time $$(date -d "10 minutes ago" +%s000 2>/dev/null || date -v-10M +%s000) \
+		--region us-east-1 \
+		--output text | grep -v "GET /health" | grep -v "^SEARCH" | grep -v "^EVENTS" | grep -v "^$$" | tee runs/deployed-run-evidence.log
+	@echo ""
+	@echo "Saved to runs/deployed-run-evidence.log"

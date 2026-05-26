@@ -10,7 +10,7 @@ graph LR
     Worker -->|BatchWrite| ToolCalls[(DynamoDB<br/>tool_calls)]
     Worker -->|CreateSchedule| Scheduler[EventBridge<br/>Scheduler]
     Scheduler -->|Timer fires| SQS
-    Worker -->|OpenRouter API| LLM[LLM<br/>Claude Sonnet / GPT-4o-mini]
+    Worker -->|OpenRouter API| LLM[LLM<br/>Anthropic / OpenAI]
 
     subgraph AWS Cloud
         ALB
