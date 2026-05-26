@@ -8,8 +8,8 @@ graph TB
             ALB[Application Load Balancer<br/>Port 80 → 8000]
 
             subgraph "ECS Cluster: watchtower-mini"
-                API[API Task<br/>256 CPU / 512 MB<br/>uvicorn app.api.routes:app]
-                Worker[Worker Task<br/>256 CPU / 512 MB<br/>python -m app.worker.sqs_poller]
+                API[API Task<br/>0.25 vCPU / 512 MB<br/>uvicorn app.api.routes:app]
+                Worker[Worker Task<br/>0.25 vCPU / 512 MB<br/>python -m app.worker.sqs_poller]
             end
         end
 

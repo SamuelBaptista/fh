@@ -37,7 +37,7 @@ Infrastructure layout showing all AWS resources and CI/CD pipeline.
 ![Deployment Topology](deployment-topology.png)
 
 **Resources:**
-- **ECS Fargate**: 2 services (API + Worker), 256 CPU / 512 MB each
+- **ECS Fargate**: 2 services (API + Worker), 0.25 vCPU / 512 MB each
 - **ALB**: public HTTP endpoint on port 80
 - **SQS FIFO**: per-load ordering via MessageGroupId
 - **DynamoDB**: 3 tables (loads, events, tool_calls), PAY_PER_REQUEST

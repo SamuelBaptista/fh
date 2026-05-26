@@ -25,7 +25,7 @@
 
 | Resource | Purpose | Cost |
 |----------|---------|------|
-| ECS Fargate (×2) | API + Worker services, 256 CPU / 512 MB | ~$7/10 days |
+| ECS Fargate (×2) | API + Worker services, 0.25 vCPU / 512 MB | ~$7/10 days |
 | ALB | Public HTTP endpoint | ~$5.50/10 days |
 | SQS FIFO | Per-load event ordering | Free tier |
 | DynamoDB (×3) | loads, events, tool_calls | Free tier |
