@@ -65,21 +65,27 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Update ECS API service
+      - name: Deploy API service
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE_API \
-            --force-new-deployment \
-            --region $AWS_REGION
+          TASK_DEF=$(aws ecs describe-task-definition --task-definition watchtower-mini-api --region $AWS_REGION --query 'taskDefinition' --output json)
+          NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          NEW_ARN=$(aws ecs register-task-definition --region $AWS_REGION --cli-input-json "$NEW_TASK_DEF" --query 'taskDefinition.taskDefinitionArn' --output text)
+          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE_API --task-definition $NEW_ARN --force-new-deployment --region $AWS_REGION
 
-      - name: Update ECS Worker service
+      - name: Deploy Worker service
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE_WORKER \
-            --force-new-deployment \
-            --region $AWS_REGION
+          TASK_DEF=$(aws ecs describe-task-definition --task-definition watchtower-mini-worker --region $AWS_REGION --query 'taskDefinition' --output json)
+          NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          NEW_ARN=$(aws ecs register-task-definition --region $AWS_REGION --cli-input-json "$NEW_TASK_DEF" --query 'taskDefinition.taskDefinitionArn' --output text)
+          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE_WORKER --task-definition $NEW_ARN --force-new-deployment --region $AWS_REGION
 
       - name: Wait for API service stability
         run: |
