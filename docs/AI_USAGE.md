@@ -4,7 +4,7 @@
 
 - **Claude Code** (Anthropic CLI) — primary development assistant
 - **Claude Opus 4.6** — model powering the assistant
-- **OpenRouter** — LLM gateway for agent runtime (Claude Sonnet 4.6 + GPT-4o-mini fallback)
+- **OpenRouter** — LLM gateway for agent runtime (Anthropic primary, OpenAI fallback)
 
 ## What Was AI-Generated or Heavily Assisted
 

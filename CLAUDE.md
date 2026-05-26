@@ -83,6 +83,6 @@ FastAPI (ECS Fargate + ALB) → SQS FIFO (MessageGroupId=load_id) → Worker (EC
 - Customer config as typed YAML: scales to N customers without code changes
 - SQS FIFO MessageGroupId=load_id: guarantees per-load event ordering
 - DynamoDB version attribute: optimistic concurrency safety net
-- Real multi-model fallback via OpenRouter (Sonnet 4.6 primary, GPT-4o-mini fallback)
+- Real multi-model fallback via OpenRouter (Anthropic primary, OpenAI fallback)
 - Eval harness has in-process runner (fast, CI) + HTTP runner (live endpoint)
 - ECS Fargate over Lambda: better for long-running operations, simpler container deployment
