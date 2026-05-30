@@ -135,7 +135,7 @@ jobs:
 
       - name: Smoke test deployed endpoint
         run: |
-          API_URL="http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com"
+          API_URL="http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com"
           HEALTH=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/health")
           if [ "$HEALTH" != "200" ]; then
             echo "Health check failed with status $HEALTH"

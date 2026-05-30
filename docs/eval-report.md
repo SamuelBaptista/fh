@@ -25,7 +25,7 @@ make eval
 LLM_MODE=live make eval
 
 # Against deployed endpoint
-LLM_MODE=live API_URL=http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com make eval
+LLM_MODE=live API_URL=http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com make eval
 ```
 
 ## Deterministic vs Agent-Dependent

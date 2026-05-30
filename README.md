@@ -7,7 +7,7 @@ https://github.com/SamuelBaptista/fh
 
 ### 2. Deployed Public API
 ```
-Base URL: http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com
+Base URL: http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com
 Auth:     Authorization: Bearer fh-eval-token-2026
 ```
 
@@ -142,7 +142,7 @@ make down
 **Option 3: Against deployed endpoint**
 ```bash
 # Run eval against live AWS deployment (no AWS credentials needed — just OpenRouter key)
-LLM_MODE=live API_URL=http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com make eval
+LLM_MODE=live API_URL=http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com make eval
 
 # Fetch CloudWatch logs as trace evidence (requires AWS credentials for the deployment account)
 make logs
@@ -205,16 +205,16 @@ Trace artifacts: `runs/evt-*.jsonl` (one file per event with full tool call reco
 
 ```bash
 # Health check
-curl http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com/health
+curl http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com/health
 
 # Seed a load
-curl -X POST http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com/loads \
+curl -X POST http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com/loads \
   -H "Authorization: Bearer fh-eval-token-2026" \
   -H "Content-Type: application/json" \
   -d '{"load_id":"test-1","customer_id":"customer_a","load_data":{"external_load_id":"FH-1","companies":{"broker":{"name":"B"},"shipper":{"name":"S"},"carrier":{"name":"C"}},"contacts":{},"stops":[{"stop_id":"p1","type":"pickup","address":{"line_1":"123 St","city":"Chicago","state":"IL","postal_code":"60601","country":"US"},"appointment":{"type":"fixed","timezone":"America/Chicago"},"coordinates":{"lat":41.8,"lng":-87.6}},{"stop_id":"d1","type":"delivery","address":{"line_1":"456 St","city":"Dallas","state":"TX","postal_code":"75201","country":"US"},"appointment":{"type":"fixed","timezone":"America/Chicago"},"coordinates":{"lat":32.7,"lng":-96.8}}]},"initial_state":"on_route_to_delivery"}'
 
 # Send tracking ping
-curl -X POST http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com/events/tracking \
+curl -X POST http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com/events/tracking \
   -H "Authorization: Bearer fh-eval-token-2026" \
   -H "Content-Type: application/json" \
   -d '{"event_id":"trk-1","event_type":"tracking","load_id":"test-1","customer_id":"customer_a","occurred_at":"2026-05-26T15:00:00Z","tracking":{"tracking_id":"t1","lat":32.77,"lng":-96.79,"distance_to_delivery_miles":0.5,"ping_sequence":1,"provider":"test"}}'

@@ -74,7 +74,7 @@ FastAPI (ECS Fargate + ALB) → SQS FIFO (MessageGroupId=load_id) → Worker (EC
 - Terraform in `infra/terraform/`
 - Single Docker image → ECR → 2 ECS Fargate services (API + Worker)
 - Public endpoint: Application Load Balancer (ALB)
-- Deployed URL: `http://watchtower-mini-alb-1307411393.us-east-1.elb.amazonaws.com`
+- Deployed URL: `http://watchtower-mini-alb-415298781.us-east-1.elb.amazonaws.com`
 - Auth token: `fh-eval-token-2026`
 - Secrets: AWS Secrets Manager in cloud, `.env` locally
 
